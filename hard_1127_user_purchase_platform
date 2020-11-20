@@ -1,0 +1,16 @@
+with device as
+（select user_id, spend_date, case when count(*)=1 then platform else 'both' end platform, sum(amount) amount 
+        from spending group by user_id, spend_date）,
+  dates as 
+  (
+  select distinct spend_date, 'desktop' platform from spending 
+    union all
+    select distinct spend_date, 'mobile' platform from spending 
+    union all
+    select distinct spend_date, 'both' platform from spending
+  )
+  select c.spend_date, c.platform, sum(coalesce(amount,0)) total_amount, sum(case when amount is null then 0 else 1 end) total_users 
+  from dates c
+  left join device v
+  on dates.spend_date = device.spend_date
+  and dates.platform = device.platform
