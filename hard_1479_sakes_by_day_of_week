@@ -1,0 +1,19 @@
+with sales as (select items.item_category,coalesce(weekday(order_date),0) as day_of_week,coalesce(sum(quantity),0) as quantity from 
+orders
+RIGHT join items on orders.item_id = items.item_id
+              GROUP BY 1,2
+              order by 2)
+
+select  
+item_category AS CATEGORY,
+sum(CASE WHEN day_of_week= 0 THEN quantity ELSE 0 END) as 'MONDAY',
+sum(CASE WHEN day_of_week=1 THEN quantity ELSE 0 END) as 'TUESDAY',
+sum(CASE WHEN day_of_week=2 THEN quantity ELSE 0 END) as 'WEDNESDAY',
+sum(CASE WHEN day_of_week=3 THEN quantity ELSE 0 END) as 'THURSDAY',
+sum(CASE WHEN day_of_week=4 THEN quantity ELSE 0 END) as 'FRIDAY',
+sum(CASE WHEN day_of_week=5 THEN quantity ELSE 0 END) as 'SATURDAY',
+sum(CASE WHEN day_of_week=6 THEN quantity ELSE 0 END) as 'SUNDAY'
+from 
+sales
+group by 1
+order by 1
