@@ -1,0 +1,19 @@
+# Write your MySQL query statement below 
+with each_score as
+(select player_id,sum(score) as score
+from
+((select first_player as player_id,first_score as score
+from matches ) 
+union
+(select second_player as player_id,second_score as score from matches)) p
+left join each_score e
+on p.player_id = e.player_id
+ group by 1
+)
+select group_id as GROUP_ID,player_id AS PLAYER_ID
+from
+(
+select p.player_id,e.score,p.group_id, row_number() over (partition by group_id order by score desc,player_id) as r
+from  each_score p
+) b
+where r = 1

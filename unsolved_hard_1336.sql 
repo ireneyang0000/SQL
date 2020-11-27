@@ -1,0 +1,22 @@
+with visist as 
+(select user_id, count(visit_date) as visits_count
+from visits
+group by 1),
+transaction as 
+(
+select user_id, count(transaction_date) as transactions_count
+    from transactions
+    group by 1
+)
+select t.user_id,visits_count,transactions_count
+from transaction t
+inner join visist v
+on t.user_id = v.user_id
+union 
+select visits_count,0 as transactions_count
+from visist 
+where user_id not in ( select distinct user_id from transaction)
+union 
+select 0 as visits_count, transactions_count
+from transaction 
+where user_id not in ( select distinct user_id from visist)

@@ -1,0 +1,24 @@
+with everyday as (
+    select job_date,status,rk
+    from
+    (select fail_date as job_date,'failed' as status,RANK() OVER (ORDER BY fail_date) AS rk
+from failed 
+     where fail_date like '2019%'
+union 
+select success_date as job_date, 'succeeded' as status,RANK() OVER (ORDER BY success_date) AS rk
+from succeeded
+    where success_date like '2019%') u
+
+)
+SELECT status AS period_state, MIN(job_date) AS start_date, MAX(job_date) AS end_date
+FROM
+(
+SELECT 
+        job_date, 
+        RANK() OVER (ORDER BY job_date) AS overall_ranking, 
+        status, 
+        rk , 
+        (RANK() OVER (ORDER BY job_date) - rk) AS inv
+        from everyday) a
+       GROUP BY inv, status
+ORDER BY start_date
