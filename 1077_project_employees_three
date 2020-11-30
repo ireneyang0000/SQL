@@ -1,0 +1,6 @@
+with emp as (select p.employee_id,project_id,rank() over (partition by project_id order by experience_years desc) as r from project p
+left join employee e
+on p.employee_id = e.employee_id)
+select distinct project_id, employee_id
+from emp
+where r = 1

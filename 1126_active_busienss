@@ -1,0 +1,8 @@
+select distinct business_id 
+from
+(select business_id,event_type,count(*) over (partition by business_id) as cnt
+from
+(select *,avg(occurences) over (partition by event_type) as avg_oc
+from events) a
+where occurences > avg_oc) b
+where cnt > 1

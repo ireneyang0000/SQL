@@ -1,0 +1,12 @@
+with player_list as (select count(distinct a.player_id) as cnt
+from (SELECT player_id, MIN(event_date) AS event_date FROM Activity GROUP BY player_id) a
+inner join activity b
+on a.player_id = b.player_id
+and a.event_date = b.event_date - 1),
+total_player as 
+(
+select count(distinct player_id) as total 
+    from Activity
+)
+select round((select cnt from player_list)/(select total from total_player),2) as fraction
+;

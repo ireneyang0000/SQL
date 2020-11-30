@@ -1,0 +1,10 @@
+with a as (
+SELECT DISTINCT post_id, action_date, CASE WHEN post_id IN (SELECT DISTINCT post_id FROM Removals) THEN 1 ELSE 0 END AS 'remove_or_not'
+FROM Actions
+WHERE action = 'report' AND extra = 'spam'
+)
+SELECT ROUND(AVG(daily_percent) * 100, 2) AS 'average_daily_percent'
+from
+(SELECT action_date, SUM(remove_or_not) / COUNT(post_id) AS 'daily_percent'
+from a
+group by 1) c

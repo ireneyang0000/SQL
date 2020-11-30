@@ -31,16 +31,13 @@ values
 (6,5,9,'2009-02-02'),
 (7,5,8,'2010-04-13');
 
-select book.book_id,book.name
-from (select * from books 
-where books.available_from < '2019-05-23') 
-book
+select books.book_id,books.name from books 
 left join (select book_id,sum(quantity) as quantity
 from
-orders_1098 
-where dispatch_date >= '2018-06-23'
-group by 1
-) a 
-on book.book_id = a.book_id
-
-and a.quantity > 10;
+orders
+where dispatch_date between '2018-06-23' and '2019-06-23'
+    group by book_id) a
+on books.book_id = a.book_id
+where books.available_from < '2019-05-23'
+and (a.quantity is null or a.quantity < 10)
+order by books.book_id;

@@ -1,0 +1,13 @@
+solution 1
+select product_id,year as first_year,quantity,price
+from
+(select product_id,year,quantity,price,rank() over (partition by product_id order by year)as rk
+from sales ) a
+where rk = 1
+
+solution 2
+SELECT product_id, year AS first_year, quantity, price FROM Sales
+WHERE (product_id, year) IN
+(SELECT product_id, MIN(year) AS first_year FROM Sales
+GROUP BY 1)
+
