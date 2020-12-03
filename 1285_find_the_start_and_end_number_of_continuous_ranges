@@ -1,0 +1,9 @@
+with row_cnt as 
+(
+select *, row_number() over (order by log_id asc ) as row_num
+    from logs
+)
+SELECT min(log_id) as start_id, max(log_id) as end_id
+FROM row_cnt
+GROUP BY log_id - row_num
+
