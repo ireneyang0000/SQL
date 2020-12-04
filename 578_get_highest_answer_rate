@@ -1,0 +1,20 @@
+with answer_rate as 
+(select question_id, 
+ sum((case when answer_id is not null then 1 else 0 end)) as answer_number
+from survey_log
+where action <> 'show'
+group by 1)
+,
+show_rate as 
+(select question_id, count(*) as show_number 
+from survey_log
+where action = 'show'
+group by 1)
+select question_id as survey_log
+from
+(select a.question_id,(answer_number/show_number) as rate
+from answer_rate a
+left join show_rate s
+on a.question_id = s.question_id
+ order by 2 desc 
+limit 1)  c

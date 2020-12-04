@@ -1,0 +1,12 @@
+with frequency as 
+(
+  SELECT O.customer_id, O.product_id,
+    RANK() OVER (PARTITION BY customer_id ORDER BY COUNT(O.product_id) DESC) AS rnk
+    FROM Orders O
+group by 1,2
+)
+select o.customer_id,o.product_id,p.product_name
+from frequency o
+left join products p
+on p.product_id = o.product_id
+where rnk = 1
