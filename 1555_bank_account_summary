@@ -1,0 +1,12 @@
+with all_trans as 
+(
+select u.user_id as USER_ID,u.user_name AS USER_NAME,sum(credit - COALESCE( a.amount,0)+ COALESCE(b.amount,0)) as CREDIT
+from Users u
+left join (select paid_by,sum(amount) as amount from Transactions group by 1) a 
+on a.paid_by = u.user_id
+left join (select paid_to, sum(amount) as amount from Transactions group by 1) b
+on b.paid_to = u.user_id
+group by 1,2
+)
+select *, (case when credit < 0 then 'Yes' else 'No' end) as CREDIT_LIMIT_BREACHED
+from all_trans

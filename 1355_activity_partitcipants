@@ -1,0 +1,9 @@
+with active as 
+(
+select activity,count(*) as num
+    from friends 
+    group by 1
+)
+select activity
+from active
+where num < (select max(num) from active) and num>(select min(num) from active)

@@ -1,0 +1,11 @@
+with order_rank as 
+(
+select customer_id,order_date,order_id,dense_rank() over (partition by customer_id order by order_date desc) as rownub
+from orders
+)
+select c.name as customer_name, o.customer_id,order_id,order_date
+from order_rank o
+left join Customers c
+on o.customer_id = c.customer_id
+where rownub <=3
+order by c.name,o.customer_id, order_date desc

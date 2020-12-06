@@ -1,0 +1,14 @@
+with max_salary as
+(
+select company_id,max(salary), 
+    (case when max(salary) < 1000 then 1
+    when max(salary) >=1000 and max(salary)<=10000 then 0.76
+    else 0.51
+    end) as rate
+    from Salaries
+        group by 1
+)
+select s.company_id,s.employee_id,s.employee_name,round((s.salary*m.rate),0) as salary
+from Salaries s
+left join max_salary m
+on s.company_id = m.company_id

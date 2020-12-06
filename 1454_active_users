@@ -1,0 +1,32 @@
+with active_user as (select a.id,count(distinct b.login_date)
+from Logins a
+inner join Logins b
+on a.id = b.id
+and DATEDIFF(a.login_date,b.login_date) BETWEEN 1 AND 5
+group by 1
+having count(distinct b.login_date) >= 4 )
+select a.id,ac.name
+from active_user a
+left join Accounts ac
+on a.id = ac.id
+;
+
+
+SELECT DISTINCT a.id, (SELECT name FROM Accounts WHERE id=a.id) name
+FROM Logins a, Logins b
+WHERE a.id=b.id AND
+DATEDIFF(a.login_date,b.login_date) BETWEEN 1 AND 4
+GROUP BY a.id, a.login_date
+HAVING COUNT(DISTINCT b.login_date)=4;
+
+
+SELECT DISTINCT a.id, a.name
+FROM (
+    SELECT 
+        id, LEAD(login_date, 4) OVER (PARTITION BY id ORDER BY login_date) AS five_days,
+        DATEDIFF(LEAD(login_date, 4) OVER (PARTITION BY id ORDER BY login_date), login_date) AS gap
+    FROM (SELECT DISTINCT id, login_date FROM Logins) c
+) d
+LEFT JOIN Accounts a ON a.id = d.id
+WHERE gap = 4
+ORDER BY a.id
