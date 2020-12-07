@@ -1,0 +1,29 @@
+---solution1
+with first_login as 
+(
+select user_id,activity_date, rank() over (partition by user_id order by activity_date) as rk
+    from traffic
+    where activity = 'login'
+    group by 1,2
+)
+select activity_date as login_date, count(distinct user_id) as user_count
+from first_login
+where rk = 1
+and activity_date between DATE_SUB('2019-06-30', INTERVAL 90 DAY) and '2019-06-30'
+group by 1
+
+----solution2
+with cte as (
+select user_id,
+    min(activity_date) as first_login
+from traffic
+where activity = 'login'
+group by user_id
+)
+
+select first_login as login_date,
+    count(user_id) as user_count
+from cte
+group by first_login
+having first_login between dateadd(day, -90, '2019-06-30') and '2019-06-30'
+;
