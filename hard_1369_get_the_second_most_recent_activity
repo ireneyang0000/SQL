@@ -1,0 +1,32 @@
+select username,activity,startDate,endDate
+from
+(select *, rank() over (partition by username order by startdate desc) as rak
+from UserActivity
+) a
+where rak = 2
+union 
+select username,activity,startDate,endDate
+from
+UserActivity
+where username in
+(
+select username
+    from useractivity
+    group by 1
+    having count(*) = 1
+) 
+order by 1 
+-----
+SELECT * 
+FROM UserActivity 
+GROUP BY username 
+HAVING COUNT(*) = 1 ----group by can have no aggragation total selected 
+
+UNION ALL
+
+SELECT u1.*
+FROM UserActivity u1 
+LEFT JOIN UserActivity u2 
+    ON u1.username = u2.username AND u1.endDate < u2.endDate
+GROUP BY u1.username, u1.endDate
+HAVING COUNT(u2.endDate) = 1

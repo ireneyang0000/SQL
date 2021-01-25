@@ -1,0 +1,19 @@
+with a as (select *,ROW_NUMBER() OVER (
+	ORDER BY join_date
+   ) from drivers),
+   driver as
+   (select a.join_date,coalesce(count(b.join_date),0)
+   from a a
+   left join a b
+   on a.join_date >= b.join_date
+    where a.join_date like '%2020%'
+   group by 1),
+      with recursive months(month) as
+(
+  select 1
+  union all
+  select month + 1
+  from months
+  where month < 12
+)
+   select * from months

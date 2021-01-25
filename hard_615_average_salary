@@ -1,0 +1,18 @@
+with company as 
+(
+select DATE_FORMAT(pay_date, '%Y-%m') as pay_month,avg(amount) as comp
+    from salary
+    group by 1
+)
+
+select b.pay_month,b.department_id,(case when b.dep > c.comp then 'higher' when b.dep = c.comp then 'same' else 'lower' end ) as comparison
+from
+(select a.pay_month,a.department_id,avg(a.amount) as dep
+from
+(select e.employee_id,e.department_id,DATE_FORMAT(s.pay_date, '%Y-%m') as pay_month,s.amount as amount
+from employee  e 
+left join salary s
+on e.employee_id = s.employee_id ) a
+group by 1,2) b
+left join company c
+on c.pay_month = b.pay_month
