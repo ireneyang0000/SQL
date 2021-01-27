@@ -1,0 +1,10 @@
+select  id,visit_date,people
+from
+(select id,visit_date,people,
+ count(id) over (partition by diff) as cnt
+from
+(select id,visit_date,people,row_number() over (order by id) as rownumber,(id - row_number() over (order by id)) as diff
+from stadium 
+where people >= 100
+group by 1,2) a) b
+where cnt >=3
